@@ -3,6 +3,7 @@ package API.Models;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,16 +16,15 @@ public class Team {
     @Column(name = "TEAM_ID")
     private long id;
     @Column(name = "TEAM_NAME")
+    @NotNull
     private String name;
     @Column(name = "TEAM_SEASONSCOUNT")
     private int seasonscount;
     @Column(name = "TEAM_CITY")
     private String city;
     @Column(name = "TEAM_STADIUMNAME")
+    @NotNull
     private String stadiumname;
-
-    @OneToMany(targetEntity = Footballer.class)
-    private List footballers;
 
     public Team(){
         super();
@@ -53,6 +53,13 @@ public class Team {
     }
 
 
+    public boolean isValid(boolean checkId){
+        if (checkId && id != 0L)
+            return true;
+        if (name != null && stadiumname != null)
+            return true;
+        return false;
+    }
 
     @Override
     public boolean equals(Object object){
@@ -74,10 +81,6 @@ public class Team {
         return seasonscount;
     }
 
-    public List getFootballers() {
-        return footballers;
-    }
-
     public String getCity() {
         return city;
     }
@@ -96,10 +99,6 @@ public class Team {
 
     public void setCity(String city) {
         this.city = city;
-    }
-
-    public void setFootballers(List footballers) {
-        this.footballers = footballers;
     }
 
     public void setName(String name) {

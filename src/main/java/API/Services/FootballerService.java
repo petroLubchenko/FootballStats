@@ -33,6 +33,9 @@ public class FootballerService {
         if (footballer == null)
             return false;
 
+        if (footballerRepository.existsById(footballer.getId()))
+            return false;
+
         Footballer f = footballerRepository.save(footballer);
         return f != null;
     }

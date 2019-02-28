@@ -1,6 +1,10 @@
 package API.Models;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 @Entity
@@ -12,15 +16,19 @@ public class Footballer {
     @Column(name = "FOOTBALLER_ID")
     private long id;
     @Column(name = "FOOTBALLER_FIRSTNAME")
+    @NotNull
     private String firstname;
     @Column(name = "FOOTBALLER_SURNAME")
+    @NotNull
     private String surname;
 
     @JoinColumn(name = "FOOTBALLER_TEAM")
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Team team;
 
     @Column(name = "FOOTBALLER_AGE")
+    @NotNull
     private int age;
     @Column(name = "FOOTBALLER_GAMES")
     private int games;
@@ -103,6 +111,17 @@ public class Footballer {
                         Objects.equals(this.surname, ((Footballer) object).surname) && this.team.equals(((Footballer) object).team);
 
          return false;
+    }
+
+    public boolean isValid(boolean checkId){
+
+        if (checkId && id == 0L)
+            return false;
+
+        if (firstname == null || surname == null || age <= 15)
+            return false;
+
+        return true;
     }
 
 
