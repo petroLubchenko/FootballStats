@@ -1,5 +1,6 @@
 package API.Controllers;
 
+import API.Controllers.Exceptions.InAdmissibleFieldsException;
 import API.Models.Footballer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,15 +23,20 @@ public class ErrorHandlers {
         StringBuilder sb = new StringBuilder();
         sb.append("Field(s) ");
 
-        fields.forEach(item -> sb.append("\'" + item + "\'"));
+        fields.forEach(item -> sb.append(" \'" + item + "\',"));
 
-        if (c == Footballer.class)
-            sb.append(" can`t be null. Field \'age\' should be above 15.");
+        sb.deleteCharAt(sb.length() - 1);
+
+        sb.append(" can`t be null.");
+
+        if (c.equals(Footballer.class))
+            sb.append(" Field \'age\' should be above 15.");
 
         HttpHeaders hh = new HttpHeaders();
         hh.add("Reason", sb.toString());
 
-        return new ResponseEntity(hh, HttpStatus.BAD_REQUEST);
+        throw new InAdmissibleFieldsException(sb.toString());
+        //return new ResponseEntity(hh, HttpStatus.BAD_REQUEST);
     }
 
 }

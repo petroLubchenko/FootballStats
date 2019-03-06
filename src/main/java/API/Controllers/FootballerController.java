@@ -1,6 +1,7 @@
 package API.Controllers;
 
 import API.Additional.Result;
+import API.Controllers.Exceptions.InternalServerException;
 import API.Controllers.Exceptions.NotFoundException;
 import API.Models.Footballer;
 import API.Services.FootballerService;
@@ -38,8 +39,8 @@ public class FootballerController {
         Result result = footballerService.delete(id);
 
         if (result == Result.Not_Found)
-            //throw new NotFoundException();
-            return notFoundHandler(generateNotFoundMessage(id));
+            throw new NotFoundException(generateNotFoundMessage(id));
+            //return notFoundHandler(generateNotFoundMessage(id));
 
 
 
@@ -55,7 +56,7 @@ public class FootballerController {
             return new ResponseEntity(httpHeaders, HttpStatus.BAD_REQUEST);
         }
 
-        if (footballer.isValid(false)){
+        if (!footballer.isValid(false)){
             List<String> field = new ArrayList<>();
 
             if (footballer.getFirstname() == null)
@@ -72,8 +73,12 @@ public class FootballerController {
 
         boolean isSuccesful = footballerService.addFootballer(footballer);
 
-        ResponseEntity re = new ResponseEntity(isSuccesful ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
-        return re;
+        if (isSuccesful) {
+            ResponseEntity re = new ResponseEntity(HttpStatus.CREATED);
+            return re;
+        }
+
+        throw new InternalServerException("Unsuccessful operation. Check object and try to add again.");
     }
 
     @GetMapping("/{id}")
@@ -82,7 +87,8 @@ public class FootballerController {
         if (res != null)
             return new ResponseEntity<>(res, HttpStatus.OK);
         // TODO throw mistake
-        return notFoundHandler(generateNotFoundMessage(id));
+        throw new NotFoundException(generateNotFoundMessage(id));
+        //return notFoundHandler(generateNotFoundMessage(id));
     }
 
     @PostMapping("/update/")
@@ -95,7 +101,7 @@ public class FootballerController {
             return new ResponseEntity(httpHeaders, HttpStatus.BAD_REQUEST);
         }
 
-        if (footballer.isValid(true)){
+        if (!footballer.isValid(true)){
             List<String> field = new ArrayList<>();
 
             if (footballer.getId() == 0L)
@@ -116,21 +122,22 @@ public class FootballerController {
 
         if (footballer.getId() == 0L)
         {
-            return notFoundHandler(generateNotFoundMessage(footballer.getId()));
+            throw new NotFoundException(generateNotFoundMessage(footballer.getId()));
+            //return notFoundHandler(generateNotFoundMessage(footballer.getId()));
         }
 
         Result result = footballerService.update(footballer);
 
         switch (result){
             case False:
-                return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new InternalServerException("Unsuccessful operation. Check object and try to add again.");
             case True:
                 return new ResponseEntity(HttpStatus.OK);
             case Not_Found:
-                return notFoundHandler(generateNotFoundMessage(footballer.getId()));
+                throw new NotFoundException(generateNotFoundMessage(footballer.getId()));
         }
 
-        return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new InternalServerException("Unexpected result");
     }
 
     private String generateNotFoundMessage(long id){

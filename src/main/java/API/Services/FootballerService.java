@@ -1,6 +1,8 @@
 package API.Services;
 
 import API.Additional.Result;
+import API.Controllers.Exceptions.InternalServerException;
+import API.Controllers.Exceptions.NotFoundException;
 import API.Models.Footballer;
 import API.Repository.FootballerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,27 +32,48 @@ public class FootballerService {
     }
 
     public boolean addFootballer(Footballer footballer){
-        if (footballer == null)
-            return false;
+        try {
+            if (footballer == null)
+                return false;
 
-        if (footballerRepository.existsById(footballer.getId()))
-            return false;
+            if (footballerRepository.existsById(footballer.getId()))
+                return false;
 
-        Footballer f = footballerRepository.save(footballer);
-        return f != null;
+            Footballer f = footballerRepository.save(footballer);
+            return f != null;
+        }
+        catch (Exception e){
+            throw new InternalServerException("Unsuccessful operation. Please check data and try again.");
+        }
     }
 
     public Result delete(long id){
         if (!footballerRepository.existsById(id))
-            return Result.Not_Found;
-        footballerRepository.deleteById(id);
-        return footballerRepository.existsById(id) ? Result.False : Result.True;
+            throw new NotFoundException("Object with id = \'" + id + "\' does not exist.");
+        try {
+            footballerRepository.deleteById(id);
+            if (!footballerRepository.existsById(id))
+                return Result.True;
+            throw new Exception();
+        }
+        catch (Exception e){
+            throw new InternalServerException("Object has not been deleted. Please try again");
+        }
     }
 
     public Result update(Footballer footballer){
-        if (!footballerRepository.existsById(footballer.getId()))
-            return Result.Not_Found;
-        Footballer res = footballerRepository.save(footballer);
-        return res != null ? Result.True : Result.False;
+        try {
+            if (!footballerRepository.existsById(footballer.getId()))
+                throw new NotFoundException("Object with id = \'" + footballer.getId() + "\' does not exist.");
+            Footballer res = footballerRepository.save(footballer);
+            if (res != null)
+                return Result.True;
+
+            throw new Exception();
+        }
+        catch (Exception e){
+            throw new InternalServerException("An error occured during adding team with id = \'" + footballer.getId() +
+                    "\'. Please check data and try again.");
+        }
     }
 }

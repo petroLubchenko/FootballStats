@@ -7,6 +7,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
+
+
 @Entity
 @Table(name = "FOOTBALLER")
 public class Footballer {
@@ -16,10 +18,8 @@ public class Footballer {
     @Column(name = "FOOTBALLER_ID")
     private long id;
     @Column(name = "FOOTBALLER_FIRSTNAME")
-    @NotNull
     private String firstname;
     @Column(name = "FOOTBALLER_SURNAME")
-    @NotNull
     private String surname;
 
     @JoinColumn(name = "FOOTBALLER_TEAM")
@@ -28,7 +28,6 @@ public class Footballer {
     private Team team;
 
     @Column(name = "FOOTBALLER_AGE")
-    @NotNull
     private int age;
     @Column(name = "FOOTBALLER_GAMES")
     private int games;

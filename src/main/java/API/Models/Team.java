@@ -7,6 +7,8 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
+
+
 @Entity
 @Table(name = "TEAM")
 public class Team {
@@ -16,14 +18,12 @@ public class Team {
     @Column(name = "TEAM_ID")
     private long id;
     @Column(name = "TEAM_NAME")
-    @NotNull
     private String name;
     @Column(name = "TEAM_SEASONSCOUNT")
     private int seasonscount;
     @Column(name = "TEAM_CITY")
     private String city;
     @Column(name = "TEAM_STADIUMNAME")
-    @NotNull
     private String stadiumname;
 
     public Team(){

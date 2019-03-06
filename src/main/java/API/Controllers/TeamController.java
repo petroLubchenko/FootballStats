@@ -1,6 +1,8 @@
 package API.Controllers;
 
 import API.Additional.Result;
+import API.Controllers.Exceptions.InternalServerException;
+import API.Controllers.Exceptions.NotFoundException;
 import API.Models.Team;
 import API.Services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +35,8 @@ public class TeamController {
         if (team != null)
             return new ResponseEntity<>(team, HttpStatus.OK);
 
-        return notFoundHandler(generateNotFoundMessage(id));
+        throw new NotFoundException(generateNotFoundMessage(id));
+        //return notFoundHandler(generateNotFoundMessage(id));
     }
 
     @DeleteMapping("/{id}")
@@ -41,7 +44,8 @@ public class TeamController {
         Result result = teamService.delete(id);
 
         if (result == Result.Not_Found)
-            return notFoundHandler(generateNotFoundMessage(id));
+            throw new NotFoundException(generateNotFoundMessage(id));
+            //return notFoundHandler(generateNotFoundMessage(id));
 
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -69,8 +73,12 @@ public class TeamController {
 
         boolean issuccess = teamService.addTeam(team);
 
-        ResponseEntity re = new ResponseEntity(issuccess ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
-        return re;
+        if (issuccess) {
+            ResponseEntity re = new ResponseEntity(HttpStatus.CREATED);
+            return re;
+        }
+
+        throw new InternalServerException("Unsuccessful operation. Check object and try to add again.");
     }
 
     @PostMapping("/update")
@@ -101,14 +109,14 @@ public class TeamController {
 
         switch (res){
             case Not_Found:
-                return notFoundHandler(generateNotFoundMessage(team.getId())); // TODO
+                throw new NotFoundException(generateNotFoundMessage(team.getId()));
             case False:
-                return  new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR); // TODO
+                throw new InternalServerException("Unsuccessful operation. Check object and try to add again.");
             case True:
-                return new ResponseEntity(HttpStatus.OK); // TODO
+                return new ResponseEntity(HttpStatus.OK);
         }
 
-        return new ResponseEntity(HttpStatus.EXPECTATION_FAILED); // TODO 503 service unavailable
+        throw new InternalServerException("Unexpected result");
     }
 
 
